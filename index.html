@@ -496,6 +496,42 @@
   }
   footer a{ color:var(--text-muted); transition:color .2s ease; }
   footer a:hover{ color:var(--teal); }
+
+  /* ---------- MUSIC TOGGLE ---------- */
+  .music-toggle{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    z-index:200;
+    width:48px; height:48px;
+    border-radius:50%;
+    background:var(--surface);
+    border:1px solid var(--border-strong);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:border-color .2s ease, transform .2s ease, background .2s ease;
+    backdrop-filter:blur(8px);
+  }
+  .music-toggle:hover{ border-color:var(--teal); transform:translateY(-2px); }
+  .music-toggle svg{ width:18px; height:18px; }
+  .music-toggle .bar{
+    fill:var(--text-muted);
+    transition:fill .2s ease;
+  }
+  .music-toggle.playing .bar{ fill:var(--teal); }
+  .music-toggle.playing .bar{ animation:eq 0.9s ease-in-out infinite; }
+  .music-toggle.playing .bar:nth-child(1){ animation-delay:0s; }
+  .music-toggle.playing .bar:nth-child(2){ animation-delay:.2s; }
+  .music-toggle.playing .bar:nth-child(3){ animation-delay:.4s; }
+  @keyframes eq{
+    0%,100%{ transform:scaleY(0.4); }
+    50%{ transform:scaleY(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .music-toggle.playing .bar{ animation:none; }
+  }
 </style>
 </head>
 <body>
@@ -816,12 +852,39 @@
   </div>
 </footer>
 
+<button class="music-toggle" id="musicToggle" aria-label="Reproducir música de fondo" aria-pressed="false" title="Reproducir música de fondo">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <rect class="bar" x="4" y="9" width="3" height="6" rx="1"/>
+    <rect class="bar" x="10.5" y="5" width="3" height="14" rx="1"/>
+    <rect class="bar" x="17" y="9" width="3" height="6" rx="1"/>
+  </svg>
+</button>
+<audio id="bgMusic" src="cobalt-lounge.mp3" loop preload="none"></audio>
+
 <script>
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
+
+  const musicBtn = document.getElementById('musicToggle');
+  const bgMusic = document.getElementById('bgMusic');
+  bgMusic.volume = 0.35;
+
+  musicBtn.addEventListener('click', () => {
+    if (bgMusic.paused) {
+      bgMusic.play();
+      musicBtn.classList.add('playing');
+      musicBtn.setAttribute('aria-pressed', 'true');
+      musicBtn.setAttribute('title', 'Pausar música de fondo');
+    } else {
+      bgMusic.pause();
+      musicBtn.classList.remove('playing');
+      musicBtn.setAttribute('aria-pressed', 'false');
+      musicBtn.setAttribute('title', 'Reproducir música de fondo');
+    }
+  });
 </script>
 
 </body>
